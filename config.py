@@ -1,5 +1,5 @@
 import os
-from project import utils
+from pipeline import utils
 
 
 

@@ -1,8 +1,8 @@
 import os
 from absl import logging
 import config as pipeline_config
-from project import utils
-from project import pipeline
+from pipeline import utils
+from pipeline import pipeline
 from tfx.orchestration.kubeflow import kubeflow_dag_runner
 from tfx.proto import trainer_pb2
 
