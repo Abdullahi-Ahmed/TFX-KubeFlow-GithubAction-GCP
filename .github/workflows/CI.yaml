@@ -1,5 +1,5 @@
+name: Build and Push to GCR
 
-name: Deploy  on Kubeflow
 on: 
   workflow_dispatch:
     inputs:
@@ -9,29 +9,48 @@ on:
         default: 'warning'
       tags:
         description: 'Test scenario tags'
-#on: [push]
+env:
+  GITHUB_SHA: ${{ github.sha }} 
+  GITHUB_REF: ${{ github.ref }} 
+  IMAGE: fashionImage
+  REGISTRY_HOSTNAME: gcr.io
 
-# Set environmental variables
 
 jobs:
-  build:
+  setup-build-publish-deploy:
+    name: Setup, Build, and Publish
     runs-on: ubuntu-latest
     steps:
-    - name: checkout files in repo
-      uses: actions/checkout@master
 
+    - name: Checkout
+      uses: actions/checkout@v2
 
-    - name: Submit Kubeflow pipeline
-      id: kubeflow
-      uses: NikeNano/kubeflow-github-action@master
+    # Setup gcloud CLI
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
-        KUBEFLOW_URL: ${{ secrets.KUBEFLOW_URL }}
-        ENCODED_GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GKE_KEY }}
-        GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-sa.json
-        CLIENT_ID: ${{ secrets.CLIENT_ID }}
-        PIPELINE_CODE_PATH: "kubeflow_dag_runner.py"
-        PIPELINE_FUNCTION_NAME: "tfx_fashion_pipeline"
-        PIPELINE_PARAMETERS_PATH: "parameters.yaml"
-        EXPERIMENT_NAME: "Default"
-        RUN_PIPELINE: True
-        VERSION_GITHUB_SHA: False
+        version: '270.0.0'
+        service_account_key: ${{ secrets.GCR_KEY }} 
+
+    # Configure docker to use the gcloud command-line tool as a credential helper
+    - run: |
+        # Set up docker to authenticate
+        # via gcloud command-line tool.
+        gcloud auth configure-docker
+
+    # Build the Docker image
+    - name: Build
+      run: |
+        export TAG=`echo $GITHUB_REF | awk -F/ '{print $NF}'`
+        echo $TAG
+        docker build -t "$REGISTRY_HOSTNAME"/"$IMAGE":"$TAG" \
+          --build-arg GITHUB_SHA="$GITHUB_SHA" \
+          --build-arg GITHUB_REF="$GITHUB_REF" .
+
+    # Push the Docker image to Google Container Registry
+    - name: Publish
+      run: |
+        export TAG=`echo $GITHUB_REF | awk -F/ '{print $NF}'`
+        echo $TAG
+        docker push "$REGISTRY_HOSTNAME"/"$IMAGE":"$TAG"
+        docker tag "$REGISTRY_HOSTNAME"/"$IMAGE":"$TAG" "$REGISTRY_HOSTNAME"/"$IMAGE":latest
+        docker push "$REGISTRY_HOSTNAME"/"$IMAGE":latest
