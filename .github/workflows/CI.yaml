@@ -44,7 +44,7 @@ jobs:
         echo $TAG
         docker build -t "$REGISTRY_HOSTNAME"/"$IMAGE":"$TAG" \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
-          --build-arg GITHUB_REF="$GITHUB_REF" .
+          --build-arg GITHUB_REF="$GITHUB_REF" ./project
 
     # Push the Docker image to Google Container Registry
     - name: Publish
