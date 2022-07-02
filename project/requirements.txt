@@ -1,0 +1,4 @@
+tensorflow==2.9.1
+tensorflow_model_analysis==0.39.0
+tensorflow_transform==1.8.0
+tfx==1.8.0
