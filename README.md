@@ -3,6 +3,7 @@ The purpose of this repository is to showcase [Kubeflow's](https://www.kubeflow.
 
 ## Table of Contents
 
+- [Create a New Project](#-create-a-new-project)
 - [Project's Infrastructure](#-create-Pulumi-infra)
 - [Environment Setup](#-environment-setup)
 - [Deployment](#-deployment)
