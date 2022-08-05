@@ -11,4 +11,4 @@ The purpose of this repository is to showcase [Kubeflow's](https://www.kubeflow.
   - [Gcp Github Action Deployment](#Gcp-deployment)
 - [Streamlit App [Optional]](#-streamlit-app-optional)
 
-## 🚀 Create Pulumi infra
+## 🚀 Create a New Project
